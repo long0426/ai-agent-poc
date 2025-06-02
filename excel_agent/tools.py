@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import os
 
 
 def read_excel(name: str, sheet_name: str) -> str:
@@ -14,7 +15,7 @@ def read_excel(name: str, sheet_name: str) -> str:
     """
     print(f"(read_excel {name}, sheet={sheet_name})")
     try:
-        file_path = name
+        file_path = name if name else os.getenv("FILE_PATH")
         if sheet_name is None:
             # 讀取所有工作表
             excel_file = pd.ExcelFile(file_path)
