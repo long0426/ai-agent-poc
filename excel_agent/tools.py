@@ -14,7 +14,7 @@ def read_excel(name: str, sheet_name: str) -> str:
     """
     print(f"(read_excel {name}, sheet={sheet_name})")
     try:
-        file_path = f"./excel_agent/data/{name}"
+        file_path = name
         if sheet_name is None:
             # 讀取所有工作表
             excel_file = pd.ExcelFile(file_path)

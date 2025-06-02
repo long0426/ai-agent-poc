@@ -3,6 +3,8 @@ from google.adk.models.lite_llm import LiteLlm
 import os
 from dotenv import load_dotenv
 from excel_agent.tools import read_excel
+from pydantic import BaseModel, Field
+from google.adk.tools.mcp_tool.mcp_toolset import MCPToolset, StdioServerParameters
 
 load_dotenv()
 
@@ -12,6 +14,12 @@ model = LiteLlm(
     api_base=os.getenv("AZURE_OPENAI_API_ENDPOINT"),
 )
 
+
+# --- Define Output Schema ---
+class ResponseContent(BaseModel):
+    response: str = Field(description="處理Excel的回應")
+
+
 root_agent = Agent(
     name="excel_agent",
     model=model,
@@ -20,8 +28,26 @@ root_agent = Agent(
         1. 你是一個Excel專家，可以幫助使用者處理Excel文件。
         2. 你可以讀取Excel檔案名稱，並且讀取Excel檔案的內容。
         3. 你可以讀取工作表名稱。
-        4. 如果使用者給你一個Excel檔案名稱，請使用工具`read_excel`來讀取Excel檔案的內容。
-        5. 如果使用者給你一個工作表名稱，請使用工具`read_excel`來讀取Excel檔案的內容，如果沒有則為None。
+        4. 如果沒有提供路徑檔名，則讀取/root/agent/ai-agent-poc/excel_agent/data/Murex 假日檔維護作業評估.xlsx。
+        5. 如果沒有提供工作表名稱，則讀取工作表1。
     """,
     tools=[read_excel],
+    # output_schema=ResponseContent,  # if output_schema is set, tools must be empty
+    # output_key="response",
+    # tools=[ # haris-musa/excel-mcp-server
+    #     MCPToolset(
+    #         connection_params=StdioServerParameters(
+    #             command="uvx",
+    #             args=["excel-mcp-server", "stdio"],
+    #         )
+    #     ),
+    # ],
+    # tools=[ # negokaz/excel-mcp-server
+    #     MCPToolset(
+    #         connection_params=StdioServerParameters(
+    #             command="npx",
+    #             args=["--yes", "@negokaz/excel-mcp-server"],
+    #         )
+    #     ),
+    # ],
 )
